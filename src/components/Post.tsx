@@ -11,19 +11,23 @@ interface Author {
     avatarUrl: string;
 }
 
-interface PostProps {
+interface Content {
+    type: "paragraph" | "link";
+    content: string;
+}
+
+export interface PostType {
+    id: number;
     author: Author;
     publishedAt: Date;
-    content: Content[];
+    content: Content [];
 }
 
-interface Content {
-type: "paragraph"  | "link" ;
-content: string;
-
+interface PostProps {
+    post: PostType;
 }
 
-export function Post({author, publishedAt, content}: PostProps) {
+export function Post({ post }: PostProps) {
 
     const [comments, setComments] = useState([
         "I love your new project. Well done!!!"
@@ -31,9 +35,9 @@ export function Post({author, publishedAt, content}: PostProps) {
 
     const [newCommentText, setNewCommentText] = useState(' ');
 
-    const publishedDateFormatted = format(publishedAt, "LLLL  d 'at' HH:mm")
+    const publishedDateFormatted = format(post.publishedAt, "LLLL  d 'at' HH:mm")
 
-    const publishedDateRelativeToNow = formatDistanceToNow(publishedAt, {
+    const publishedDateRelativeToNow = formatDistanceToNow(post.publishedAt, {
         locale: enCA,
     })
 
@@ -45,10 +49,10 @@ export function Post({author, publishedAt, content}: PostProps) {
     }
 
     function handleNewCommentChange(event: ChangeEvent<HTMLTextAreaElement>) {
-        event.target.setCustomValidity(' ');
-        setNewCommentText(event.target.value)
-    }
-
+        event.target.setCustomValidity('');
+        setNewCommentText(event.target.value);
+      }
+      
     function handleNewCommentInvalid(event: InvalidEvent<HTMLTextAreaElement>) {
         event.target.setCustomValidity("Don't forget to write your message");
 
@@ -69,21 +73,21 @@ export function Post({author, publishedAt, content}: PostProps) {
         <article className={styles.post}>
             <header>
                 <div className={styles.author}>
-                    <Avatar src={author.avatarUrl} />
+                    <Avatar src={post.author.avatarUrl} />
 
                     <div className={styles.authorInfo}>
-                        <strong>{author.name}</strong>
-                        <span>{author.role}</span>
+                        <strong>{post.author.name}</strong>
+                        <span>{post.author.role}</span>
                     </div>
                 </div>
 
-                <time title={publishedDateFormatted} dateTime={publishedAt.toISOString()}>
+                <time title={publishedDateFormatted} dateTime={post.publishedAt.toISOString()}>
                     {publishedDateRelativeToNow}
                 </time>
             </header>
 
             <div className={styles.content}>
-                {content.map(line => {
+                {post.content.map(line => {
                     if (line.type === "paragraph") {
                         return <p key={line.content}>{line.content}</p>;
                     } else if (line.type === "link") {
@@ -102,7 +106,7 @@ export function Post({author, publishedAt, content}: PostProps) {
                     onChange={handleNewCommentChange}
                     onInvalid={handleNewCommentInvalid}
                     required
-                  
+
                 />
                 <footer>
                     <button type="submit" disabled={isNewCommentEmpty}>
